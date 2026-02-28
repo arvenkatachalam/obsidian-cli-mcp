@@ -10,6 +10,9 @@ import {
   parseJsonOutput,
   safeFileSchema,
   safePathSchema,
+  vaultNameSchema,
+  safePropertyNameSchema,
+  safeExtSchema,
 } from "./cli.js";
 
 const config = resolveConfig();
@@ -50,7 +53,7 @@ server.tool(
   {
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, vault }) => {
     const positional: string[] = [];
@@ -64,10 +67,10 @@ server.tool(
   "obsidian_search",
   "Full-text search across vault notes with context",
   {
-    query: z.string().min(1),
+    query: z.string().min(1).max(10000),
     folder: safePathSchema.optional(),
     limit: z.number().int().positive().optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ query, folder, limit, vault }) => {
     const positional = [`query=${query}`];
@@ -84,7 +87,7 @@ server.tool(
   {
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, vault }) => {
     const positional: string[] = [];
@@ -101,7 +104,7 @@ server.tool(
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
     counts: z.boolean().optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, counts, vault }) => {
     const positional: string[] = [];
@@ -119,7 +122,7 @@ server.tool(
   {
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, vault }) => {
     const positional: string[] = [];
@@ -136,7 +139,7 @@ server.tool(
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
     sort: z.enum(["name", "count"]).optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, sort, vault }) => {
     const positional: string[] = [];
@@ -155,7 +158,7 @@ server.tool(
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
     status: z.enum(["todo", "done", "all"]).optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, status, vault }) => {
     const positional: string[] = [];
@@ -173,12 +176,12 @@ server.tool(
   "obsidian_create",
   "Create a new note in the vault",
   {
-    name: z.string().min(1),
+    name: safeFileSchema,
     path: safePathSchema.optional(),
-    content: z.string().optional(),
-    template: z.string().optional(),
+    content: z.string().max(100000).optional(),
+    template: safeFileSchema.optional(),
     overwrite: z.boolean().optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ name, path, content, template, overwrite, vault }) => {
     const positional = [`name=${name}`];
@@ -197,8 +200,8 @@ server.tool(
   {
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    content: z.string().min(1),
-    vault: z.string().optional(),
+    content: z.string().min(1).max(100000),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, content, vault }) => {
     const positional: string[] = [`content=${content}`];
@@ -214,8 +217,8 @@ server.tool(
   {
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    content: z.string().min(1),
-    vault: z.string().optional(),
+    content: z.string().min(1).max(100000),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, content, vault }) => {
     const positional: string[] = [`content=${content}`];
@@ -229,12 +232,12 @@ server.tool(
   "obsidian_property_set",
   "Set a frontmatter property on a note",
   {
-    name: z.string().min(1),
-    value: z.string(),
+    name: safePropertyNameSchema,
+    value: z.string().max(10000),
     type: z.string().optional(),
     file: safeFileSchema.optional(),
     path: safePathSchema.optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ name, value, type, file, path, vault }) => {
     const positional = [`name=${name}`, `value=${value}`];
@@ -253,7 +256,7 @@ server.tool(
     path: safePathSchema.optional(),
     line: z.number().int().nonnegative(),
     action: z.enum(["toggle", "complete", "incomplete"]),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ file, path, line, action, vault }) => {
     const positional: string[] = [
@@ -273,8 +276,8 @@ server.tool(
   "List files in the vault, optionally filtered by folder or extension",
   {
     folder: safePathSchema.optional(),
-    ext: z.string().optional(),
-    vault: z.string().optional(),
+    ext: safeExtSchema.optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ folder, ext, vault }) => {
     const positional: string[] = [];
@@ -289,7 +292,7 @@ server.tool(
   "List folders in the vault",
   {
     folder: safePathSchema.optional(),
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ folder, vault }) => {
     const positional: string[] = [];
@@ -302,7 +305,7 @@ server.tool(
   "obsidian_templates",
   "List available templates in the vault",
   {
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ vault }) => {
     return obsidianTool("templates", undefined, undefined, vault);
@@ -313,7 +316,7 @@ server.tool(
   "obsidian_vault_info",
   "Get vault metadata (name, path, file count, etc.)",
   {
-    vault: z.string().optional(),
+    vault: vaultNameSchema.optional(),
   },
   async ({ vault }) => {
     return obsidianTool("vault", undefined, undefined, vault);

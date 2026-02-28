@@ -7,11 +7,12 @@ const execFile = promisify(execFileCb);
 
 // --- Validation schemas ---
 
-const PATH_UNSAFE = /(?:^\/|\.\.[\\/]|\x00)/;
+const PATH_UNSAFE = /(?:^\/|\.\.(?:[\\/]|$)|\x00)/;
 
 export const safeFileSchema = z
   .string()
   .min(1)
+  .max(10000)
   .refine((v) => !PATH_UNSAFE.test(v), {
     message:
       "File path must not contain '..' traversal, absolute paths, or null bytes",
@@ -20,6 +21,7 @@ export const safeFileSchema = z
 export const safePathSchema = z
   .string()
   .min(1)
+  .max(10000)
   .refine((v) => !PATH_UNSAFE.test(v), {
     message:
       "Folder path must not contain '..' traversal, absolute paths, or null bytes",
@@ -32,6 +34,24 @@ export const vaultNameSchema = z
   .regex(/^[\w\s\-().]+$/, {
     message:
       "Vault name may only contain letters, numbers, spaces, hyphens, parentheses, and dots",
+  })
+  .refine((v) => !v.startsWith("-"), {
+    message: "Vault name must not start with a dash",
+  });
+
+export const safePropertyNameSchema = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[\w\-. ]+$/, {
+    message: "Property name contains invalid characters",
+  });
+
+export const safeExtSchema = z
+  .string()
+  .max(20)
+  .regex(/^[\w.]+$/, {
+    message: "Extension contains invalid characters",
   });
 
 // --- Argument building ---
