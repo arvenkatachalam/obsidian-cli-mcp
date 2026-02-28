@@ -125,9 +125,9 @@ export async function runObCli(
 ): Promise<CliResult> {
   const fullArgs = [subcommand, ...args];
 
-  // Add vault if configured
-  if (config.vault) {
-    fullArgs.push(`--vault=${config.vault}`);
+  // ob sync commands use --path, not --vault
+  if (config.vaultPath) {
+    fullArgs.push(`--path=${config.vaultPath}`);
   }
 
   try {

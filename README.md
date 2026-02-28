@@ -22,7 +22,8 @@ Add to your MCP client config (e.g. Claude Code `~/.mcp.json`):
       "command": "node",
       "args": ["/path/to/obsidian-cli-mcp/dist/index.js"],
       "env": {
-        "OBSIDIAN_VAULT": "My Vault Name"
+        "OBSIDIAN_VAULT": "My Vault Name",
+        "OBSIDIAN_VAULT_PATH": "/path/to/My Vault Name"
       }
     }
   }
@@ -33,7 +34,8 @@ Add to your MCP client config (e.g. Claude Code `~/.mcp.json`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OBSIDIAN_VAULT` | _(none)_ | Default vault name |
+| `OBSIDIAN_VAULT` | _(none)_ | Default vault name (used by `obsidian` CLI) |
+| `OBSIDIAN_VAULT_PATH` | _(none)_ | Vault filesystem path (used by `ob` sync commands) |
 | `OBSIDIAN_CLI_PATH` | `obsidian` | Path to `obsidian` binary |
 | `OB_CLI_PATH` | `ob` | Path to `ob` binary |
 | `OBSIDIAN_CLI_TIMEOUT` | `30000` | CLI timeout (ms) |

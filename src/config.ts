@@ -1,5 +1,6 @@
 export interface Config {
   vault: string | undefined;
+  vaultPath: string | undefined;
   obsidianCliPath: string;
   obCliPath: string;
   obsidianCliTimeout: number;
@@ -15,6 +16,7 @@ export function resolveConfig(): Config {
 
   return {
     vault: process.env.OBSIDIAN_VAULT || undefined,
+    vaultPath: process.env.OBSIDIAN_VAULT_PATH || undefined,
     obsidianCliPath: process.env.OBSIDIAN_CLI_PATH || "obsidian",
     obCliPath: process.env.OB_CLI_PATH || "ob",
     obsidianCliTimeout,
