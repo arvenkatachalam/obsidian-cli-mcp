@@ -33,6 +33,7 @@ const mockExecFile = vi.mocked(execFile);
 function makeConfig(overrides?: Partial<Config>): Config {
   return {
     vault: "TestVault",
+    vaultPath: "/path/to/TestVault",
     obsidianCliPath: "obsidian",
     obCliPath: "ob",
     obsidianCliTimeout: 30000,
@@ -139,7 +140,7 @@ describe("runObCli", () => {
     expect(mockExecFile.mock.calls[0]![0]).toBe("ob");
     const args = mockExecFile.mock.calls[0]![1] as string[];
     expect(args[0]).toBe("sync");
-    expect(args).toContain("--vault=TestVault");
+    expect(args).toContain("--path=/path/to/TestVault");
   });
 
   it("passes additional args", async () => {
