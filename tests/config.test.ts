@@ -1,14 +1,21 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
-// Mock execFileSync before importing resolveConfig
+// Mock child_process and fs before importing resolveConfig
 vi.mock("node:child_process", () => ({
   execFileSync: vi.fn(),
 }));
 
+vi.mock("node:fs", () => ({
+  accessSync: vi.fn(),
+  constants: { X_OK: 1 },
+}));
+
 import { execFileSync } from "node:child_process";
+import { accessSync } from "node:fs";
 import { resolveConfig } from "../src/config.js";
 
 const mockExecFileSync = vi.mocked(execFileSync);
+const mockAccessSync = vi.mocked(accessSync);
 
 describe("resolveConfig", () => {
   const originalEnv = { ...process.env };
@@ -21,6 +28,9 @@ describe("resolveConfig", () => {
     delete process.env.OBSIDIAN_CLI_TIMEOUT;
     delete process.env.OB_CLI_TIMEOUT;
     mockExecFileSync.mockReset();
+    mockAccessSync.mockReset();
+    // Default: `which` returns a valid path, `accessSync` succeeds
+    mockExecFileSync.mockReturnValue("/usr/local/bin/obsidian\n" as any);
   });
 
   afterEach(() => {
@@ -98,13 +108,19 @@ describe("resolveConfig", () => {
     expect(() => resolveConfig()).toThrow("Invalid timeout");
   });
 
-  it("checks obsidian binary with --version", () => {
+  it("checks obsidian binary exists via which (not --version)", () => {
     process.env.OBSIDIAN_VAULT = "My Vault";
     resolveConfig();
     expect(mockExecFileSync).toHaveBeenCalledWith(
+      "which",
+      ["obsidian"],
+      expect.objectContaining({ timeout: 5000 }),
+    );
+    // Must NOT call obsidian --version (which launches the app)
+    expect(mockExecFileSync).not.toHaveBeenCalledWith(
       "obsidian",
-      ["--version"],
-      expect.objectContaining({ timeout: 5000, stdio: "ignore" }),
+      expect.anything(),
+      expect.anything(),
     );
   });
 
@@ -112,9 +128,18 @@ describe("resolveConfig", () => {
     process.env.OBSIDIAN_VAULT = "My Vault";
     resolveConfig();
     expect(mockExecFileSync).not.toHaveBeenCalledWith(
-      "ob",
-      expect.anything(),
+      "which",
+      ["ob"],
       expect.anything(),
     );
+  });
+
+  it("throws when binary exists but is not executable", () => {
+    process.env.OBSIDIAN_VAULT = "My Vault";
+    mockExecFileSync.mockReturnValue("/usr/local/bin/obsidian\n" as any);
+    mockAccessSync.mockImplementation(() => {
+      throw new Error("EACCES");
+    });
+    expect(() => resolveConfig()).toThrow('"obsidian" binary not found or not executable');
   });
 });

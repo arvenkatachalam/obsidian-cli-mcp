@@ -1,3 +1,4 @@
+import { accessSync, constants } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 export interface Config {
@@ -43,10 +44,14 @@ export function resolveConfig(): Config {
 
 function checkBinary(name: string, path: string): void {
   try {
-    execFileSync(path, ["--version"], {
+    // Resolve the binary path without executing it — running `obsidian --version`
+    // launches the full Obsidian app on macOS.
+    const resolved = execFileSync("which", [path], {
       timeout: 5000,
-      stdio: "ignore",
-    });
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    accessSync(resolved, constants.X_OK);
   } catch {
     throw new Error(
       `"${path}" binary not found or not executable. ` +
