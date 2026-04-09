@@ -29,14 +29,14 @@ Three source files with clear separation:
 ## Key Conventions
 
 - **ES Modules** — `"type": "module"` in package.json; use `import`/`export` syntax.
-- **TypeScript strict mode** — All strict checks enabled, target ES2022, module Node16.
+- **TypeScript strict mode** — All strict checks enabled, target ES2022, module Node16. `tsconfig.json` requires explicit `"types": ["node"]` (needed since TypeScript 6).
 - **Security-first validation** — All user-facing string inputs go through Zod schemas that block path traversal (`../`), absolute paths, null bytes, and leading dashes. Content is capped at 100K chars, paths at 10K, vault names at 200.
 - **`execFile` not `exec`** — Commands are never run through a shell; arguments are passed as arrays to prevent injection.
 - **Stderr filtering** — `filterStderr()` strips Node.js `ExperimentalWarning` lines from CLI output before returning results.
 
 ## Testing
 
-Five test suites (~250 cases) using Vitest:
+Five test suites (125 cases) using Vitest:
 
 - `tests/config.test.ts` — Config resolution and env var parsing
 - `tests/cli.test.ts` — Argument building, schema validation, JSON parsing

@@ -13,15 +13,19 @@
     "test:security": "vitest run tests/security.test.ts",
     "dev": "tsc --watch"
   },
-  "keywords": ["obsidian", "mcp", "cli"],
+  "keywords": [
+    "obsidian",
+    "mcp",
+    "cli"
+  ],
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "zod": "^3.24.0"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "@types/node": "^25.5.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.3"
   }
 }
